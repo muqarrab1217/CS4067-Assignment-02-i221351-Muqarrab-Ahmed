@@ -1,0 +1,26 @@
+.event-detail {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .event-detail img {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 10px;
+  }
+  
+  .event-detail button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  .event-detail button:hover {
+    background: #218838;
+  }
+  
