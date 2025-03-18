@@ -6,10 +6,12 @@ import "./EventCard.css";
 const EventCard = ({ event }) => {
   return (
     <div className="event-card">
-      <img src={event.image || "https://via.placeholder.com/300"} alt={event.name} />
       <h3>{event.name}</h3>
-      <p><FaCalendarAlt /> {event.date} | <FaMapMarkerAlt /> {event.location}</p>
-      <Link to={`/events/${event.id}`}>
+      <p><FaCalendarAlt /> {event.date}</p>
+      <p>{event.location}</p>
+      
+      {/* Fix: Use _id instead of id */}
+      <Link to={`/events/${event._id}`}>
         <button>View Details</button>
       </Link>
     </div>

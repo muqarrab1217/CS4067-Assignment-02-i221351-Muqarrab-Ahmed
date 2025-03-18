@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "../services/api";
+import Navbar from "../components/Navbar";
 
 const Booking = () => {
   const [bookingDetails, setBookingDetails] = useState({
@@ -20,6 +21,8 @@ const Booking = () => {
   };
 
   return (
+    <>
+    <Navbar />
     <div>
       <h2>Book Your Event</h2>
       <form onSubmit={handleSubmit}>
@@ -29,6 +32,7 @@ const Booking = () => {
         <button type="submit">Book Now</button>
       </form>
     </div>
+    </>
   );
 };
 
