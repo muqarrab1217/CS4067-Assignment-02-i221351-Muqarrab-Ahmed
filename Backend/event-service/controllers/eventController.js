@@ -10,6 +10,16 @@ exports.getEvents = async (req, res) => {
     }
 };
 
+// Get top 6 events
+exports.getTopEvents = async (req, res) => {
+    try {
+        const topEvents = await Event.find().sort({ createdAt: -1 }).limit(6); // Fetch latest 6 events
+        res.status(200).json(topEvents);
+    } catch (err) {
+        res.status(500).json({ error: "Server error" });
+    }
+};
+
 // Get single event by ID
 exports.getEventById = async (req, res) => {
     try {
@@ -25,13 +35,20 @@ exports.getEventById = async (req, res) => {
 // Create an event
 exports.createEvent = async (req, res) => {
     try {
-        const { name, description, date, location, availableTickets } = req.body;
-        const newEvent = new Event({ name, description, date, location, availableTickets });
+        const { title, description, date, location, price, tickets, image, category } = req.body;
+
+        // Validate required fields
+        if (!title || !date || !location || !price || !tickets || !category) {
+            return res.status(400).json({ error: "All fields are required" });
+        }
+
+        const newEvent = new Event({ title, description, date, location, price, tickets, image, category });
         await newEvent.save();
 
-        res.status(201).json(newEvent);
-    } catch (err) {
-        res.status(500).json({ error: "Server error" });
+        res.status(201).json({ message: "Event created successfully", event: newEvent });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Server error while creating event" });
     }
 };
 
