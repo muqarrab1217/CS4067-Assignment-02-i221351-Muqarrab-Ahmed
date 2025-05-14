@@ -3,9 +3,8 @@ kind: Ingress
 metadata:
   name: eventbooking-ingress
   namespace: online-event-booking
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
     - host: eventbooking.local
       http:
@@ -16,7 +15,7 @@ spec:
               service:
                 name: frontend
                 port:
-                  number: 80
+                  number: 5173
           - path: /api/users
             pathType: Prefix
             backend:

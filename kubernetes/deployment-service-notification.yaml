@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: notification-service
-          image: notification-service:latest
+          image: 22i1351/notification-service:latest
           ports:
             - containerPort: 5004
           envFrom:

@@ -1,42 +1,42 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user-service
+  name: frontend
   namespace: online-event-booking
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: user-service
+      app: frontend
   template:
     metadata:
       labels:
-        app: user-service
+        app: frontend
     spec:
       containers:
-        - name: user-service
-          image: 22i1351/user-service:latest
+        - name: frontend
+          image: 22i1351/frontend:latest
           ports:
-            - containerPort: 5008
+            - containerPort: 5173
           envFrom:
             - configMapRef:
                 name: app-config
             - secretRef:
                 name: app-secrets
           env:
-            - name: DATABASE_URL
-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)"
+            - name: REACT_APP_API_URL
+              value: "http://eventbooking.local/api"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: user-service
+  name: frontend
   namespace: online-event-booking
 spec:
   type: ClusterIP
   selector:
-    app: user-service
+    app: frontend
   ports:
     - protocol: TCP
-      port: 5008
-      targetPort: 5008
+      port: 5173
+      targetPort: 5173

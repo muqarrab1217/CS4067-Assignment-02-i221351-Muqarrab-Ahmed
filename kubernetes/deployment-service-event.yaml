@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: event-service
-          image: event-service:latest
+          image: 22i1351/event-service:latest
           ports:
             - containerPort: 5002
           envFrom:
