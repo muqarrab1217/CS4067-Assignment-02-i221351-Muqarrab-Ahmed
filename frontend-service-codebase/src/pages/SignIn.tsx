@@ -13,17 +13,7 @@ const SignIn = () => {
     setError("");
   
     try {
-      const response = await fetch(
-        `http://localhost:5008/api/users/email?email=${email}`
-      );
-      if (!response.ok) {
-        throw new Error("User not found");
-      }
-  
-      const user = await response.json();
-  
-      if (user.password === password) {
-        // ✅ Store authentication details
+
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("userId", user.userId);
         localStorage.setItem("isAuthenticated", "true");
@@ -31,10 +21,8 @@ const SignIn = () => {
         // ✅ Dispatch a custom event to update Navbar
         window.dispatchEvent(new Event("authChange"));
   
-        navigate("/"); // Redirect to homepage
-      } else {
-        setError("Invalid password");
-      }
+        navigate("/");
+      
     } catch (err: any) {
       setError(err.message || "Error signing in");
     }
