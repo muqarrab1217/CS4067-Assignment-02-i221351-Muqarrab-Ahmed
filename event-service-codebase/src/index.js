@@ -1,19 +1,21 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const multer = require("multer"); // For file uploads
-const path = require("path"); // For file path handling
-const fs = require("fs"); // For file system operations
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 const mongoose = require("mongoose");
+const serverless = require("serverless-http"); // ✅ Add this
+
 const eventRoutes = require("../routes/eventRoutes");
-const Event = require("../models/Event"); // Import Event model
+const Event = require("../models/Event");
 
 const app = express();
-const PORT = process.env.PORT || 5002;
 
-// MongoDB Connection with Authentication
+// MongoDB URI
 const MONGO_URI = process.env.MONGO_URI || "mongodb://eventuser:eventpass123@eventbooking-mongodb-1:27017/eventbooking?authSource=admin";
 
+// MongoDB Connection
 mongoose
   .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("MongoDB Connected..."))
@@ -23,68 +25,62 @@ mongoose
 app.use(cors());
 app.use(express.json());
 
-// Ensure the images directory exists
+// Ensure image upload directory exists
 const uploadDir = path.join(__dirname, "images");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
 
-// Multer Configuration for File Uploads
+// Multer config
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir); // Save uploaded files in the 'images' folder
-  },
+  destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
     const filePath = path.join(uploadDir, file.originalname);
-
-    // Check if file already exists
     if (fs.existsSync(filePath)) {
       const error = new Error("File already exists. Please rename and try again.");
-      error.code = "FILE_EXISTS"; // Custom error code for handling in frontend
-      return cb(error, null); // Pass error to Multer
+      error.code = "FILE_EXISTS";
+      return cb(error, null);
     }
-
-    cb(null, file.originalname); // Save file with original name if no conflict
+    cb(null, file.originalname);
   }
 });
-
 const upload = multer({ storage });
 
-// Image Upload Route
+// Upload endpoint
 app.post("/api/upload", upload.single("file"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" });
-  }
-  res.json({ filePath: `/images/${req.file.filename}` }); // Send back the file path
+  if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+  res.json({ filePath: `/images/${req.file.filename}` });
 });
 
-// Error Handling Middleware for Multer
+// Error handling
 app.use((err, req, res, next) => {
   if (err.code === "FILE_EXISTS") {
-    return res.status(400).json({ message: err.message }); // Send error response
+    return res.status(400).json({ message: err.message });
   }
-
   res.status(500).json({ message: "File upload failed", error: err.message });
 });
 
-// Serve Uploaded Images
+// Static files
 app.use("/images", express.static(uploadDir));
 
 // Routes
 app.use("/api/events", eventRoutes);
 
-// Route to get event by ID
+// Get single event
 app.get("/api/events/:id", async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
-    if (!event) {
-      return res.status(404).json({ message: "Event not found" });
-    }
+    if (!event) return res.status(404).json({ message: "Event not found" });
     res.json(event);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Start Server
-app.listen(PORT, () => console.log(`Event Service running on port ${PORT}`));
+// Root health check
+app.get("/", (req, res) => {
+  res.send({ activeStatus: true, error: false });
+});
+
+// ✅ Export handler for Vercel
+module.exports = serverless(app);
